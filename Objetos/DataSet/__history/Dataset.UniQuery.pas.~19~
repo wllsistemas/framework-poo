@@ -1,0 +1,535 @@
+unit Dataset.UniQuery;
+
+interface
+
+uses
+   Dataset.Interfaces,
+   Conexao.Interfaces,
+   Helper.Constantes,
+   Helper.System,
+   Helper.Ini,
+
+   System.Classes,
+   System.SysUtils,
+   Vcl.Forms,
+   Datasnap.DBClient,
+   Datasnap.Provider,
+   Data.DB, MemDS, DBAccess, Uni, Dataset.Helper;
+
+type
+   TDatasetUniQuery = class(TInterfacedObject, iDataset)
+    private
+      FQuery: TUniQuery;
+      FConexao: iConexao;
+      FSQL: TStringBuilder;
+    public
+      constructor Create(AConexao: iConexao);
+      destructor Destroy; override;
+      class function New(AConexao: iConexao): iDataset;
+
+      function ExecSQL(ASQL: string; AParametros: TParams): iDataset;
+      function OpenSQL(ASQL: string; AParametros: TParams; ACDS: TClientDataSet): iDataset;
+      function OpenSQLToCDS(ASQL: string; AParametros: TParams): TClientDataSet;
+      function OpenCDS_Array(ASQL: TStringList; ACDS: array of TClientDataSet): iDataset;
+      function WriteDataSet(ADSOrigem, ADSDestino: TDataSet): iDataSet;
+      function CopyDataToClientDataSet(var ACDS: TClientDataSet): iDataSet;
+      function Dataset: TDataSet;
+
+      function ExecSelectCampoInteger(AParametros: TParams; ASQL: string = ''): Integer;
+      function ExecSelectCampoDouble(AParametros: TParams; ASQL: string = ''): Double;
+      function ExecSelectCampoString(AParametros: TParams; ASQL: string = ''): string;
+      function ExecSelectCampoDate(AParametros: TParams; ASQL: string = ''): TDateTime;
+      function RecordCount(AParametros: TParams; ASQL: string = ''): Integer;
+
+      function Open(AParametros: TParams; ACDS: TClientDataSet): iDataset;
+      function Select(ASQL: string = ''): iDataSet;
+      function SelectAdd(ASQL: string): iDataSet;
+      function From(ASQL: string): iDataSet;
+      function Join(ATabela, ACampoLeft, ACampoRight: string): iDataSet;
+      function LeftJoin(ATabela, ACampoLeft, ACampoRight: string): iDataSet;
+      function RightJoin(ATabela, ACampoLeft, ACampoRight: string): iDataSet;
+      function Where(ASQL: string = ''): iDataSet;
+      function WhereAdd(ASQL: string): iDataSet;
+      function Limit(ALimite: integer): iDataSet;
+      function OrderDesc(ASQL: string): iDataSet;
+      function OrderAsc(ASQL: string): iDataSet;
+      function Group(ASQL: string): iDataSet;
+      function Having(ASQL: string): iDataSet;
+      function UnionAll(): iDataSet;
+      function Concatenar(AValores: array of string; AApelido: string): iDataset;
+      function SQL: string;
+    end;
+
+implementation
+
+{ TDatasetUniQuery }
+
+
+function TDatasetUniQuery.Concatenar(AValores: array of string;
+  AApelido: string): iDataset;
+var
+  i: integer;
+  vSQL: string;
+begin
+    Result := Self;
+
+    for I := Low(AValores) to High(AValores) do
+    begin
+        case TIPO_BANCO_DADOS of
+            tbFirebird  : vSQL := vSQL + AValores[i] + '||';
+            tbPostgre   : vSQL := vSQL + AValores[i] + ',';
+            tbSQLite    : vSQL := vSQL + AValores[i] + '||';
+            tbSQLServer : vSQL := vSQL + AValores[i] + ',';
+            tbMySQL     : vSQL := vSQL + AValores[i] + ',';
+        end;
+    end;
+
+    vSQL := Copy(vSQL, 0, Length(vSQL)-2);
+    case TIPO_BANCO_DADOS of
+        tbFirebird  : vSQL := '(' + vSQL + ') AS ' + AApelido;
+        tbPostgre   : vSQL := 'CONCAT(' + vSQL + ') AS ' + AApelido;
+        tbSQLite    : vSQL := '(' + vSQL + ') AS ' + AApelido;
+        tbSQLServer : vSQL := 'CONCAT(' + vSQL + ') AS ' + AApelido;
+        tbMySQL     : vSQL := 'CONCAT(' + vSQL + ') AS ' + AApelido;
+    end;
+
+    FSQL.AppendLine(vSQL);
+end;
+
+function TDatasetUniQuery.CopyDataToClientDataSet(var ACDS: TClientDataSet): iDataSet;
+var
+   vDsp: TDataSetProvider;
+begin
+    vDsp := TDataSetProvider.Create(nil);
+    try
+       vDsp.DataSet := TDataSet( FQuery );
+       ACDS.Data    := vDsp.Data;
+    finally
+       FreeAndNil( vDsp );
+    end;
+end;
+
+constructor TDatasetUniQuery.Create(AConexao: iConexao);
+begin
+   FQuery := TUniQuery.Create(nil);
+   FQuery.Connection := AConexao.RetornaConexao as TUniConnection;
+   FConexao := AConexao;
+   FSQL := TStringBuilder.Create;
+end;
+
+function TDatasetUniQuery.Dataset: TDataSet;
+begin
+    Result := TDataSet(FQuery);
+end;
+
+
+destructor TDatasetUniQuery.Destroy;
+begin
+  Freeandnil(FQuery);
+  FreeAndNil(FSQL);
+  inherited;
+end;
+
+
+function TDatasetUniQuery.ExecSelectCampoInteger(AParametros: TParams;
+  ASQL: string): Integer;
+var
+  vCDS: TClientDataSet;
+begin
+    vCDS := TClientDataSet.Create(nil);
+    OpenSQL(ASQL, AParametros, vCDS);
+
+    Result := vCDS.Fields[0].AsInteger;
+end;
+
+function TDatasetUniQuery.ExecSelectCampoDate(AParametros: TParams;
+  ASQL: string): TDateTime;
+var
+  vCDS: TClientDataSet;
+begin
+    vCDS := TClientDataSet.Create(nil);
+    OpenSQL(ASQL, AParametros, vCDS);
+
+    Result := vCDS.Fields[0].AsDateTime;
+end;
+
+function TDatasetUniQuery.ExecSelectCampoString(AParametros: TParams;
+  ASQL: string): string;
+var
+  vCDS: TClientDataSet;
+begin
+    vCDS := TClientDataSet.Create(nil);
+    OpenSQL(ASQL, AParametros, vCDS);
+
+    Result := vCDS.Fields[0].AsString;
+end;
+
+function TDatasetUniQuery.ExecSelectCampoDouble(AParametros: TParams;
+  ASQL: string): Double;
+var
+  vCDS: TClientDataSet;
+begin
+    vCDS := TClientDataSet.Create(nil);
+    OpenSQL(ASQL, AParametros, vCDS);
+
+    Result := vCDS.Fields[0].AsFloat;
+end;
+
+function TDatasetUniQuery.ExecSQL(ASQL: string; AParametros: TParams): iDataset;
+var
+   i: Integer;
+begin
+    try
+        Result := Self;
+
+        if not FConexao.isConectado then
+           FConexao.Conectar;
+
+        FQuery.Params.Clear;
+
+        if ASQL <> EmptyStr then
+        begin
+            FQuery.Fields.Clear;
+            FQuery.FieldDefs.Clear;
+            FQuery.Params.Clear;
+            FQuery.Close;
+            FQuery.SQL.Clear;
+            FQuery.SQL.Add(ASQL);
+
+            if (Assigned(AParametros)) and (AParametros.Count > 0) then
+            begin
+                for i := 0 to Pred(AParametros.Count) do
+                    FQuery.Params[i].Value := AParametros[i].Value;
+            end;
+
+            FQuery.ExecSQL;
+
+            if (not FConexao.isTransacaoAberta) then
+               FConexao.Desconectar;
+        end;
+    except
+       on E:Exception do
+          raise Exception.Create('Erro [EXECUTAR SQL]: ' + E.Message);
+    end;
+end;
+
+
+function TDatasetUniQuery.From(ASQL: string): iDataSet;
+begin
+    Result := Self;
+    FSQL.AppendLine('FROM ' + ASQL);
+end;
+
+function TDatasetUniQuery.Group(ASQL: string): iDataSet;
+begin
+    Result := Self;
+    FSQL.AppendLine('GROUP BY ' + ASQL);
+end;
+
+function TDatasetUniQuery.Having(ASQL: string): iDataSet;
+begin
+    Result := Self;
+    FSQL.AppendLine('HAVING ' + ASQL);
+end;
+
+function TDatasetUniQuery.Join(ATabela, ACampoLeft, ACampoRight: string): iDataSet;
+begin
+    Result := Self;
+    FSQL.AppendLine('INNER JOIN  ' + ATabela + ' ON ' + ACampoLeft + ' = ' + ACampoRight);
+end;
+
+function TDatasetUniQuery.LeftJoin(ATabela, ACampoLeft, ACampoRight: string): iDataSet;
+begin
+    Result := Self;
+    FSQL.AppendLine('LEFT JOIN  ' + ATabela + ' ON ' + ACampoLeft + ' = ' + ACampoRight);
+end;
+
+function TDatasetUniQuery.Limit(ALimite: integer): iDataSet;
+begin
+    Result := Self;
+
+    case TIPO_BANCO_DADOS of
+        tbFirebird  : FSQL.Replace('SELECT', 'SELECT FIRST ' + IntToStr(ALimite));
+        tbPostgre   : FSQL.AppendLine(' LIMIT ' + IntToStr(ALimite));
+        tbSQLite    : FSQL.AppendLine(' LIMIT ' + IntToStr(ALimite));
+        tbSQLServer : FSQL.Replace('SELECT', 'SELECT TOP ' + IntToStr(ALimite));
+        tbMySQL     : FSQL.AppendLine(' LIMIT ' + IntToStr(ALimite));
+    end;
+end;
+
+class function TDatasetUniQuery.New(AConexao: iConexao): iDataset;
+begin
+    Result := Self.Create(AConexao);
+end;
+
+function TDatasetUniQuery.Open(AParametros: TParams; ACDS: TClientDataSet): iDataset;
+begin
+    Self.OpenSQL(FSQL.ToString, AParametros, ACDS);
+    Result := Self;
+end;
+
+function TDatasetUniQuery.Select(ASQL: string): iDataSet;
+begin
+    Result := Self;
+    FSQL.AppendLine('SELECT  ' + ASQL);
+end;
+
+function TDatasetUniQuery.SelectAdd(ASQL: string): iDataSet;
+begin
+    Result := Self;
+    FSQL.AppendLine(ASQL);
+end;
+
+function TDatasetUniQuery.SQL: string;
+begin
+    Result := FSQL.ToString;
+end;
+
+function TDatasetUniQuery.UnionAll(): iDataSet;
+begin
+    Result := Self;
+    FSQL.AppendLine('UNION ALL');
+end;
+
+function TDatasetUniQuery.OpenSQL(ASQL: string; AParametros: TParams;
+  ACDS: TClientDataSet): iDataset;
+var
+   i: Integer;
+begin
+    try
+        Result := Self;
+
+        if ASQL = EmptyStr then
+           ASQL := Self.SQL;
+
+        if THelperIni.doLeBoolean('PARAMETROS', 'GRAVAR_LOG_SQL', FALSE, 'String_Conexao.ini') then
+           THelperSystem.doGravaLog('logSQL.txt', ASQL);
+
+        if not FConexao.isConectado then
+           FConexao.Conectar;
+
+        FQuery.Fields.Clear;
+        FQuery.FieldDefs.Clear;
+        FQuery.Params.Clear;
+        FQuery.Close;
+        FQuery.SQL.Clear;
+        FQuery.SQL.Add(ASQL);
+
+        if (Assigned(AParametros)) and (AParametros.Count > 0) then
+        begin
+            for i := 0 to Pred(AParametros.Count) do
+                FQuery.Params[i].Value := AParametros[i].Value;
+        end;
+
+        FQuery.Open;
+
+        if Assigned( ACDS ) then
+           CopyDataToClientDataSet( ACDS );
+//           WriteDataSet(FQuery, ACDS);
+
+        FSQL.Clear;
+    except
+       on E:Exception do
+       begin
+          FSQL.Clear;
+          if ( Pos('COMPLETE NETWORK REQUEST', UpperCase(e.Message)) > 0 ) then
+          begin
+             raise Exception.Create('ERRO DE CONEXÃO !' + sLineBreak +
+                                    'DETECTAMOS QUE SEU COMPUTADOR PERDEU CONEXÃO VIA REDE COM O SERVIDOR.            ' + sLineBreak + sLineBreak +
+                                    'AÇÕES DISPONÍVEIS:                                                               ' + sLineBreak +
+                                    '- REDE CABEADA, VERIFIQUE SE O CABO DE REDE ESTÁ CONECTA AO COMPUTADOR           ' + sLineBreak +
+                                    '- REDE WIFI, PODE OCORRER PROBLEMAS COM A SUA ANTENA, ROTEADOR OU O SINAL WIFI SOFRER INTERFERÊNCIA');
+          end
+          else
+            raise Exception.Create('Erro [EXECUTAR CONSULTA]: ' + E.Message);
+       end;
+    end;
+end;
+
+function TDatasetUniQuery.OpenSQLToCDS(ASQL: string;
+  AParametros: TParams): TClientDataSet;
+var
+   i: Integer;
+   vCDS: TClientDataSet;
+begin
+    try
+        Result := nil;
+
+        if ASQL = EmptyStr then
+           ASQL := Self.SQL;
+
+        vCDS := TClientDataSet.Create(nil);
+
+        if THelperIni.doLeBoolean('PARAMETROS', 'GRAVAR_LOG_SQL', FALSE, 'String_Conexao.ini') then
+           THelperSystem.doGravaLog('logSQL.txt', ASQL);
+
+        if not FConexao.isConectado then
+           FConexao.Conectar;
+
+        FQuery.Fields.Clear;
+        FQuery.FieldDefs.Clear;
+        FQuery.Params.Clear;
+        FQuery.Close;
+        FQuery.SQL.Clear;
+        FQuery.SQL.Add(ASQL);
+
+        if (Assigned(AParametros)) and (AParametros.Count > 0) then
+        begin
+            for i := 0 to Pred(AParametros.Count) do
+                FQuery.Params[i].Value := AParametros[i].Value;
+        end;
+
+        FQuery.Open;
+
+        if Assigned( vCDS ) then
+//           THelperDataSet.
+
+        FSQL.Clear;
+
+        Result := vCDS;
+    except
+       on E:Exception do
+       begin
+          FSQL.Clear;
+          if ( Pos('COMPLETE NETWORK REQUEST', UpperCase(e.Message)) > 0 ) then
+          begin
+             raise Exception.Create('ERRO DE CONEXÃO !' + sLineBreak +
+                                    'DETECTAMOS QUE SEU COMPUTADOR PERDEU CONEXÃO VIA REDE COM O SERVIDOR.            ' + sLineBreak + sLineBreak +
+                                    'AÇÕES DISPONÍVEIS:                                                               ' + sLineBreak +
+                                    '- REDE CABEADA, VERIFIQUE SE O CABO DE REDE ESTÁ CONECTA AO COMPUTADOR           ' + sLineBreak +
+                                    '- REDE WIFI, PODE OCORRER PROBLEMAS COM A SUA ANTENA, ROTEADOR OU O SINAL WIFI SOFRER INTERFERÊNCIA');
+          end
+          else
+            raise Exception.Create('Erro [EXECUTAR CONSULTA]: ' + E.Message);
+       end;
+    end;
+end;
+
+function TDatasetUniQuery.OrderAsc(ASQL: string): iDataSet;
+begin
+    Result := Self;
+    FSQL.AppendLine('ORDER BY  ' + ASQL + ' ASC');
+end;
+
+function TDatasetUniQuery.OrderDesc(ASQL: string): iDataSet;
+begin
+    Result := Self;
+    FSQL.AppendLine('ORDER BY  ' + ASQL + ' DESC');
+end;
+
+function TDatasetUniQuery.RecordCount(AParametros: TParams; ASQL: string = ''): Integer;
+var
+  vCDS: TClientDataSet;
+begin
+    vCDS := TClientDataSet.Create(nil);
+    OpenSQL(ASQL, AParametros, vCDS);
+
+    Result := vCDS.RecordCount;
+end;
+
+function TDatasetUniQuery.RightJoin(ATabela, ACampoLeft, ACampoRight: string): iDataSet;
+begin
+    Result := Self;
+    FSQL.AppendLine('RIGHT JOIN  ' + ATabela + ' ON ' + ACampoLeft + ' = ' + ACampoRight);
+end;
+
+function TDatasetUniQuery.OpenCDS_Array(ASQL: TStringList;
+  ACDS: array of TClientDataSet): iDataset;
+var
+   i: Integer;
+begin
+    Result := Self;
+
+    for I := Low(ACDS) to High(ACDS) do
+        OpenSQL(ASQL[I], nil, ACDS[I]);
+end;
+
+function TDatasetUniQuery.Where(ASQL: string = ''): iDataSet;
+begin
+    Result := Self;
+    FSQL.AppendLine('WHERE ' + ASQL)
+end;
+
+function TDatasetUniQuery.WhereAdd(ASQL: string): iDataSet;
+begin
+    Result := Self;
+    FSQL.AppendLine(ASQL);
+end;
+
+function TDatasetUniQuery.WriteDataSet(ADSOrigem, ADSDestino: TDataSet): iDataSet;
+var
+   i: Integer;
+   Field: TFieldDef;
+   vFieldName: string;
+begin
+    Result := Self;
+
+    try
+
+        If ADSDestino.Active Then
+        begin
+           TClientDataSet(ADSDestino).EmptyDataSet;
+           ADSDestino.Close;
+        end;
+
+        ADSDestino.DisableControls;
+        if (TClientDataSet(ADSDestino).FieldDefs.Count = 0) then
+        begin
+            ADSDestino.Fields.Clear;
+            ADSDestino.FieldDefs.Clear;
+
+            ADSDestino.FieldDefs.BeginUpdate;
+            for i := 0 to Pred(ADSOrigem.FieldDefs.Count) do
+            begin
+                vFieldName     := ADSOrigem.FieldDefs.Items[i].Name;
+                Field          := ADSDestino.FieldDefs.AddFieldDef;
+                Field.Name     := ADSOrigem.FieldDefs.Items[i].Name;
+
+                if ADSOrigem.Fields[i].DataType in [ftExtended] then
+                   Field.DataType := ftFloat
+                else
+                   Field.DataType := ADSOrigem.FieldDefs.Items[i].DataType;
+
+                Field.Size := ADSOrigem.FieldDefs.Items[i].Size;
+                if ADSOrigem.Fields[i].DataType in [ftFloat, ftBCD] then
+                   Field.Precision := ADSOrigem.FieldDefs.Items[i].Precision;
+            end;
+            TClientDataSet(ADSDestino).CreateDataSet;
+            ADSDestino.FieldDefs.EndUpdate;
+        end;
+
+        If Not ADSDestino.Active Then
+           ADSDestino.Open;
+
+
+        ADSDestino.FieldDefs.BeginUpdate;
+        while not ADSOrigem.Eof do
+        begin
+            ADSDestino.Append;
+            for i := 0 to Pred(ADSOrigem.FieldDefs.Count) do
+            begin
+               vFieldName := ADSOrigem.FieldDefs.Items[i].Name;
+
+               case ADSOrigem.FieldDefs.Items[i].DataType of
+                  ftInteger, ftSmallint      : ADSDestino.FieldByName(ADSOrigem.Fields[i].FieldName).AsInteger  := ADSOrigem.Fields[i].AsInteger;
+                  ftDate, ftDateTime, ftTime : ADSDestino.FieldByName(ADSOrigem.Fields[i].FieldName).AsDateTime := ADSOrigem.Fields[i].AsDateTime;
+                  ftFloat, ftBCD             : ADSDestino.FieldByName(ADSOrigem.Fields[i].FieldName).AsFloat    := ADSOrigem.Fields[i].AsFloat;
+               else
+                   ADSDestino.FieldByName(ADSOrigem.Fields[i].FieldName).Value := ADSOrigem.Fields[i].Value;
+               end;
+            end;
+            ADSDestino.Post;
+            ADSOrigem.Next;
+        end;
+        ADSDestino.FieldDefs.EndUpdate;
+        ADSDestino.First;
+        ADSDestino.EnableControls;
+    except
+        on e:exception do
+           raise Exception.Create('Erro [ESCRITA DATASET] ' + sLineBreak +
+                                  'CAMPO: ' + vFieldName + sLineBreak +
+                                  e.Message);
+    end;
+end;
+end.
+

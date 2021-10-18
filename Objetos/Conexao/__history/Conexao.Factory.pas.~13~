@@ -1,0 +1,82 @@
+unit Conexao.Factory;
+
+interface
+
+uses
+  Classes,
+  SysUtils,
+  Helper.Constantes,
+  Helper.Ini,
+  Conexao.Interfaces,
+  Conexao.Zeos,
+  Conexao.Firedac,
+  Conexao.DBExpress,
+  Conexao.Unidac;
+
+type
+   TFactoryConexao = class
+   public
+       class function New(): iConexao;
+   end;
+
+implementation
+
+{ TFactoryConexao }
+
+class function TFactoryConexao.New(): iConexao;
+begin
+    TIPO_BANCO_DADOS := TTipoBancoDados( THelperIni.doLeInteger( 'CONEXAO', 'TIPO_BANCO', -1 ) );
+
+    case TIPO_ENGINE_CONEXAO of
+        teFiredac:
+        begin
+           Result := TConexaoFiredac.New
+                            .DataBase(THelperIni.doLeString('Conexao', 'Database', ''))
+                            .User(THelperIni.doLeString('Conexao', 'user_name', ''))
+                            .Password(THelperIni.doLeString('Conexao', 'Password', ''))
+                            .Porta(THelperIni.doLeString('Conexao', 'Port', ''))
+                            .Server(THelperIni.doLeString('Conexao', 'Hostname', ''))
+                            .Driver(THelperIni.doLeString('Conexao', 'Driver', ''))
+                          .LerParametros;
+        end;
+        teZEOS:
+        begin
+            Result := TConexaoZeos.New
+                            .DataBase(THelperIni.doLeString('Conexao', 'Database', ''))
+                            .User(THelperIni.doLeString('Conexao', 'user_name', ''))
+                            .Password(THelperIni.doLeString( 'Conexao', 'Password', ''))
+                            .Porta(THelperIni.doLeString('Conexao', 'Port', ''))
+                            .Server(THelperIni.doLeString( 'Conexao', 'Hostname', ''))
+                            .Driver(THelperIni.doLeString('Conexao', 'Driver', ''))
+                          .LerParametros;
+        end;
+        teRESTDW:
+        begin
+           raise Exception.Create('Componente de Acesso RESTDW não implementado !');
+        end;
+        teUnidac:
+        begin
+            Result := TConexaoUnidac.New
+                            .DataBase( THelperIni.doLeString('CONEXAO', 'NOME_BANCO', '') )
+                            .User( THelperIni.doLeString('CONEXAO', 'USUARIO', '') )
+                            .Password( THelperIni.doLeString('CONEXAO', 'SENHA', '') )
+                            .Porta( THelperIni.doLeString('CONEXAO', 'PORTA', '') )
+                            .Server( THelperIni.doLeString('CONEXAO', 'SERVIDOR') )
+                            .Driver( THelperIni.doLeString('CONEXAO', 'Driver', '') )
+                          .LerParametros;
+        end;
+        teDBExpress:
+        begin
+            Result := TConexaoDBExpress.New
+                            .DataBase(THelperIni.doLeString('Conexao', 'Database', ''))
+                            .User(THelperIni.doLeString('Conexao', 'user_name', ''))
+                            .Password(THelperIni.doLeString('Conexao', 'Password', ''))
+                            .Porta(THelperIni.doLeString('Conexao', 'Port', ''))
+                            .Server(THelperIni.doLeString('Conexao', 'Hostname', ''))
+                            .Driver(THelperIni.doLeString('Conexao', 'Driver', ''))
+                          .LerParametros;
+        end;
+    end;
+end;
+
+end.

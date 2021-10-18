@@ -1,0 +1,30 @@
+18/10/2021 - 08:16:57 - SELECT * FROM cliente 
+18/10/2021 - 08:21:29 - SELECT * FROM cliente 
+18/10/2021 - 08:22:00 - SELECT * FROM cliente 
+18/10/2021 - 08:26:48 - SELECT * FROM cliente 
+18/10/2021 - 08:27:48 - SELECT * FROM cliente 
+18/10/2021 - 08:27:57 - UPDATE cliente SET foto = :foto WHERE id = :id 
+18/10/2021 - 08:27:57 - SELECT * FROM cliente 
+18/10/2021 - 08:28:12 - UPDATE cliente SET foto = :foto WHERE id = :id 
+18/10/2021 - 08:28:12 - SELECT * FROM cliente 
+18/10/2021 - 08:28:43 - UPDATE cliente SET nome = :nome, foto = :foto WHERE id = :id 
+18/10/2021 - 08:28:43 - SELECT * FROM cliente 
+18/10/2021 - 08:29:16 - UPDATE cliente SET foto = :foto WHERE id = :id 
+18/10/2021 - 08:29:16 - SELECT * FROM cliente 
+18/10/2021 - 08:29:23 - UPDATE cliente SET status = :status WHERE id = :id 
+18/10/2021 - 08:29:23 - SELECT * FROM cliente 
+18/10/2021 - 08:30:33 - SELECT * FROM cliente 
+18/10/2021 - 08:30:52 - DELETE FROM cliente WHERE id = 5
+18/10/2021 - 08:32:11 - SELECT * FROM cliente 
+18/10/2021 - 08:32:16 - SELECT * FROM cliente 
+18/10/2021 - 08:32:27 - UPDATE cliente SET FOTO = :FOTO WHERE ID = :ID 
+18/10/2021 - 08:32:27 - SELECT * FROM cliente 
+18/10/2021 - 08:32:33 - UPDATE cliente SET FOTO = :FOTO WHERE ID = :ID 
+18/10/2021 - 08:32:33 - SELECT * FROM cliente 
+18/10/2021 - 08:32:43 - UPDATE cliente SET STATUS = :STATUS WHERE ID = :ID 
+18/10/2021 - 08:32:43 - SELECT * FROM cliente 
+18/10/2021 - 08:32:56 - UPDATE cliente SET CPF = :CPF WHERE ID = :ID 
+18/10/2021 - 08:32:56 - SELECT * FROM cliente 
+18/10/2021 - 08:37:04 - SELECT * FROM cliente 
+18/10/2021 - 08:37:22 - UPDATE cliente SET FOTO = :FOTO WHERE ID = :ID 
+18/10/2021 - 08:37:22 - SELECT * FROM cliente 

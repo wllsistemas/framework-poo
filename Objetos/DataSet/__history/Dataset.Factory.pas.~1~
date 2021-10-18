@@ -1,0 +1,41 @@
+unit Dataset.Factory;
+
+interface
+
+uses
+   Classes,
+   SysUtils,
+
+   Sistema.Helper.System,
+   Dataset.Interfaces,
+   Dataset.ZQuery,
+   Dataset.FDQuery,
+   Dataset.SQLQuery,
+   Dataset.RESTQuery,
+   Sistema.Helper.Constantes,
+   Conexao.Factory,
+   Conexao.Interfaces;
+
+type
+  TFactoryDataset = class
+   public
+       class function New(AConexao: iConexao): iDataset;
+   end;
+
+
+implementation
+
+{ TFactoryDataset }
+
+class function TFactoryDataset.New(AConexao: iConexao): iDataset;
+begin
+    case THelperSystem.LeInteger('String_Conexao.ini', 'PARAMETROS', 'ENGINE', 0) of
+         0: Result := TDatasetFDQuery.New(AConexao);
+         1: Result := TDatasetZQuery.New(AConexao);
+         2: Result := TDatasetRESTQuery.New(AConexao);
+         3:  raise Exception.Create('Componente de Acesso UNIDAC não implementado !');
+         4: Result := TDatasetSQLQuery.New(AConexao);
+    end;
+end;
+
+end.

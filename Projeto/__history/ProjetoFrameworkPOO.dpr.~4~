@@ -1,0 +1,23 @@
+program ProjetoFrameworkPOO;
+
+uses
+  Vcl.Forms,
+  Formulario.Principal in '..\Objetos\View\Formulario.Principal.pas' {Form1},
+  Helper.Constantes in '..\Objetos\Helper\Helper.Constantes.pas',
+  Helper.System in '..\Objetos\Helper\Helper.System.pas',
+  Helper.Ini in '..\Objetos\Helper\Helper.Ini.pas',
+  Helper.DataSet in '..\Objetos\Helper\Helper.DataSet.pas',
+  Conexao.DBExpress in '..\Objetos\Conexao\Conexao.DBExpress.pas',
+  Conexao.Factory in '..\Objetos\Conexao\Conexao.Factory.pas',
+  Conexao.Firedac in '..\Objetos\Conexao\Conexao.Firedac.pas',
+  Conexao.Interfaces in '..\Objetos\Conexao\Conexao.Interfaces.pas',
+  Conexao.Zeos in '..\Objetos\Conexao\Conexao.Zeos.pas';
+
+{$R *.res}
+
+begin
+  Application.Initialize;
+  Application.MainFormOnTaskbar := True;
+  Application.CreateForm(TForm1, Form1);
+  Application.Run;
+end.

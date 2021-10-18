@@ -1,0 +1,13 @@
+unit Conexao.Unidac;
+
+interface
+
+uses
+   Conexao.Interfaces,
+   Helper.Constantes,
+
+   UniProvider, PostgreSQLUniProvider, Data.DB, DBAccess, Uni;
+
+implementation
+
+end.
