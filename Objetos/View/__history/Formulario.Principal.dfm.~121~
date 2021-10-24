@@ -23,7 +23,6 @@ object frmDemo: TfrmDemo
     Height = 711
     Align = alLeft
     TabOrder = 0
-    ExplicitHeight = 697
     object Image1: TImage
       AlignWithMargins = True
       Left = 4
@@ -1413,7 +1412,6 @@ object frmDemo: TfrmDemo
       Font.Style = []
       ParentFont = False
       TabOrder = 0
-      ExplicitTop = 360
       object Label15: TLabel
         Left = 12
         Top = 77
@@ -1469,9 +1467,9 @@ object frmDemo: TfrmDemo
       object Label19: TLabel
         Left = 12
         Top = 130
-        Width = 152
+        Width = 230
         Height = 17
-        Caption = 'Nome Banco de Dados'
+        Caption = 'Caminho + Nome Banco de Dados'
         Font.Charset = DEFAULT_CHARSET
         Font.Color = 4868682
         Font.Height = -13
@@ -1513,7 +1511,6 @@ object frmDemo: TfrmDemo
         ParentBackground = False
         ParentFont = False
         TabOrder = 0
-        ExplicitTop = 262
         object btnConectar: TSpeedButton
           AlignWithMargins = True
           Left = 3
@@ -1642,7 +1639,7 @@ object frmDemo: TfrmDemo
     Width = 887
     Height = 711
     Cursor = crHandPoint
-    ActivePage = tsEdicao
+    ActivePage = tsConsulta
     Align = alClient
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
@@ -1653,10 +1650,8 @@ object frmDemo: TfrmDemo
     TabOrder = 1
     TabWidth = 100
     OnChanging = pgcChanging
-    ExplicitHeight = 697
     object tsConsulta: TTabSheet
       Caption = 'Consulta'
-      ExplicitHeight = 665
       object lblTotalRegistro: TLabel
         AlignWithMargins = True
         Left = 3
@@ -1673,7 +1668,6 @@ object frmDemo: TfrmDemo
         Font.Style = [fsBold]
         ParentFont = False
         ExplicitLeft = 788
-        ExplicitTop = 646
         ExplicitWidth = 88
       end
       object Label2: TLabel
@@ -1853,13 +1847,12 @@ object frmDemo: TfrmDemo
     object tsEdicao: TTabSheet
       Caption = 'Cadastro'
       ImageIndex = 1
-      ExplicitHeight = 665
       object GroupBox1: TGroupBox
         AlignWithMargins = True
         Left = 5
         Top = 5
         Width = 869
-        Height = 372
+        Height = 375
         Margins.Left = 5
         Margins.Top = 5
         Margins.Right = 5
@@ -1867,7 +1860,7 @@ object frmDemo: TfrmDemo
         Align = alTop
         TabOrder = 0
         object Label5: TLabel
-          Left = 15
+          Left = 18
           Top = 19
           Width = 50
           Height = 17
@@ -1880,7 +1873,7 @@ object frmDemo: TfrmDemo
           ParentFont = False
         end
         object Label6: TLabel
-          Left = 136
+          Left = 139
           Top = 19
           Width = 112
           Height = 17
@@ -1893,8 +1886,8 @@ object frmDemo: TfrmDemo
           ParentFont = False
         end
         object Label7: TLabel
-          Left = 139
-          Top = 164
+          Left = 185
+          Top = 231
           Width = 136
           Height = 17
           Caption = 'Data de Nascimento'
@@ -1906,8 +1899,8 @@ object frmDemo: TfrmDemo
           ParentFont = False
         end
         object Label8: TLabel
-          Left = 18
-          Top = 165
+          Left = 15
+          Top = 232
           Width = 112
           Height = 17
           Caption = 'Limite de Cr'#233'dito'
@@ -1945,8 +1938,8 @@ object frmDemo: TfrmDemo
           ParentFont = False
         end
         object Label11: TLabel
-          Left = 504
-          Top = 91
+          Left = 18
+          Top = 159
           Width = 36
           Height = 17
           Caption = 'Bairro'
@@ -1958,8 +1951,8 @@ object frmDemo: TfrmDemo
           ParentFont = False
         end
         object Label12: TLabel
-          Left = 695
-          Top = 91
+          Left = 209
+          Top = 159
           Width = 49
           Height = 17
           Caption = 'Cidade'
@@ -1971,8 +1964,8 @@ object frmDemo: TfrmDemo
           ParentFont = False
         end
         object Label13: TLabel
-          Left = 714
-          Top = 41
+          Left = 410
+          Top = 181
           Width = 110
           Height = 17
           Caption = 'Status do Cliente'
@@ -1984,8 +1977,8 @@ object frmDemo: TfrmDemo
           ParentFont = False
         end
         object Label14: TLabel
-          Left = 639
-          Top = 166
+          Left = 560
+          Top = 19
           Width = 144
           Height = 17
           Caption = 'Foto ( extens'#227'o JPEG )'
@@ -1997,26 +1990,13 @@ object frmDemo: TfrmDemo
           ParentFont = False
         end
         object Label20: TLabel
-          Left = 546
-          Top = 18
+          Left = 344
+          Top = 231
           Width = 25
           Height = 17
           Caption = 'CPF'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = 4868682
-          Font.Height = -13
-          Font.Name = 'Century Gothic'
-          Font.Style = []
-          ParentFont = False
-        end
-        object Label22: TLabel
-          Left = 642
-          Top = 341
-          Width = 127
-          Height = 17
-          Caption = '( clique 2x na Foto )'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clRed
           Font.Height = -13
           Font.Name = 'Century Gothic'
           Font.Style = []
@@ -2093,9 +2073,9 @@ object frmDemo: TfrmDemo
           end
         end
         object edtDataNascimento: TDBEdit
-          Left = 139
-          Top = 183
-          Width = 136
+          Left = 185
+          Top = 250
+          Width = 153
           Height = 25
           Color = 12578559
           DataField = 'data_nascimento'
@@ -2103,9 +2083,9 @@ object frmDemo: TfrmDemo
           TabOrder = 2
         end
         object DBEdit2: TDBEdit
-          Left = 136
+          Left = 139
           Top = 38
-          Width = 404
+          Width = 401
           Height = 25
           Color = 12578559
           DataField = 'nome'
@@ -2113,7 +2093,7 @@ object frmDemo: TfrmDemo
           TabOrder = 3
         end
         object DBEdit3: TDBEdit
-          Left = 15
+          Left = 18
           Top = 38
           Width = 115
           Height = 25
@@ -2136,7 +2116,7 @@ object frmDemo: TfrmDemo
         object DBEdit5: TDBEdit
           Left = 383
           Top = 110
-          Width = 115
+          Width = 157
           Height = 25
           Color = 12578559
           DataField = 'numero'
@@ -2144,8 +2124,8 @@ object frmDemo: TfrmDemo
           TabOrder = 6
         end
         object DBEdit6: TDBEdit
-          Left = 504
-          Top = 110
+          Left = 18
+          Top = 178
           Width = 185
           Height = 25
           Color = 12578559
@@ -2154,9 +2134,9 @@ object frmDemo: TfrmDemo
           TabOrder = 7
         end
         object DBEdit7: TDBEdit
-          Left = 695
-          Top = 110
-          Width = 154
+          Left = 209
+          Top = 178
+          Width = 184
           Height = 25
           Color = 12578559
           DataField = 'cidade'
@@ -2164,9 +2144,9 @@ object frmDemo: TfrmDemo
           TabOrder = 8
         end
         object edtLimiteCredito: TDBEdit
-          Left = 18
-          Top = 183
-          Width = 115
+          Left = 15
+          Top = 250
+          Width = 164
           Height = 25
           Color = 12578559
           DataField = 'limite_credito'
@@ -2174,10 +2154,10 @@ object frmDemo: TfrmDemo
           TabOrder = 9
         end
         object Panel6: TPanel
-          Left = 640
-          Top = 185
-          Width = 209
-          Height = 154
+          Left = 560
+          Top = 42
+          Width = 257
+          Height = 233
           Color = 15461355
           ParentBackground = False
           TabOrder = 10
@@ -2185,13 +2165,12 @@ object frmDemo: TfrmDemo
             AlignWithMargins = True
             Left = 4
             Top = 4
-            Width = 201
-            Height = 146
+            Width = 249
+            Height = 225
             Cursor = crHandPoint
             Align = alClient
             Center = True
             Stretch = True
-            OnDblClick = imgFotoDblClick
             ExplicitLeft = 56
             ExplicitTop = 32
             ExplicitWidth = 105
@@ -2199,8 +2178,8 @@ object frmDemo: TfrmDemo
           end
         end
         object ckbStatus: TDBCheckBox
-          Left = 830
-          Top = 41
+          Left = 526
+          Top = 180
           Width = 17
           Height = 17
           Cursor = crHandPoint
@@ -2215,9 +2194,9 @@ object frmDemo: TfrmDemo
           TabOrder = 11
         end
         object DBEdit1: TDBEdit
-          Left = 546
-          Top = 37
-          Width = 162
+          Left = 344
+          Top = 250
+          Width = 196
           Height = 25
           Color = 12578559
           DataField = 'cpf'
@@ -2259,26 +2238,91 @@ object frmDemo: TfrmDemo
             ExplicitLeft = 8
           end
         end
+        object Panel9: TPanel
+          Left = 560
+          Top = 281
+          Width = 97
+          Height = 41
+          BevelOuter = bvNone
+          Color = clHighlight
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clHighlight
+          Font.Height = -12
+          Font.Name = 'Century Gothic'
+          Font.Style = []
+          ParentBackground = False
+          ParentFont = False
+          TabOrder = 14
+          object btnAddImagem: TSpeedButton
+            AlignWithMargins = True
+            Left = 3
+            Top = 3
+            Width = 91
+            Height = 35
+            Cursor = crHandPoint
+            Align = alClient
+            Caption = '+'
+            Flat = True
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clWhite
+            Font.Height = -40
+            Font.Name = 'Century Gothic'
+            Font.Style = [fsBold]
+            ParentFont = False
+            OnClick = btnAddImagemClick
+            ExplicitLeft = -117
+            ExplicitWidth = 131
+          end
+        end
+        object Panel10: TPanel
+          Left = 720
+          Top = 281
+          Width = 97
+          Height = 41
+          BevelOuter = bvNone
+          Color = clRed
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clHighlight
+          Font.Height = -12
+          Font.Name = 'Century Gothic'
+          Font.Style = []
+          ParentBackground = False
+          ParentFont = False
+          TabOrder = 15
+          object btnRemoveImagem: TSpeedButton
+            AlignWithMargins = True
+            Left = 3
+            Top = 3
+            Width = 91
+            Height = 35
+            Cursor = crHandPoint
+            Align = alClient
+            Caption = 'X'
+            Flat = True
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clWhite
+            Font.Height = -27
+            Font.Name = 'Century Gothic'
+            Font.Style = [fsBold]
+            ParentFont = False
+            OnClick = btnRemoveImagemClick
+            ExplicitLeft = 19
+            ExplicitTop = 39
+            ExplicitWidth = 131
+          end
+        end
       end
     end
   end
   object cds: TClientDataSet
     Aggregates = <>
     Params = <>
-    Left = 672
-    Top = 192
+    Left = 472
+    Top = 456
   end
   object dts: TDataSource
     DataSet = cds
-    Left = 760
-    Top = 192
-  end
-  object OpenFileBanco: TOpenTextFileDialog
-    Left = 669
-    Top = 260
-  end
-  object OpenFileFoto: TOpenTextFileDialog
-    Left = 757
-    Top = 260
+    Left = 576
+    Top = 456
   end
 end

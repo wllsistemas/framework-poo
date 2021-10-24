@@ -1,7 +1,7 @@
 object frmDemo: TfrmDemo
   Left = 0
   Top = 0
-  Caption = 'Demo Framework ::: 1.0.0.0'
+  Caption = 'Demo Framework ::: 1.1.0.0'
   ClientHeight = 711
   ClientWidth = 1208
   Color = clBtnFace
@@ -23,7 +23,6 @@ object frmDemo: TfrmDemo
     Height = 711
     Align = alLeft
     TabOrder = 0
-    ExplicitHeight = 697
     object Image1: TImage
       AlignWithMargins = True
       Left = 4
@@ -1413,7 +1412,6 @@ object frmDemo: TfrmDemo
       Font.Style = []
       ParentFont = False
       TabOrder = 0
-      ExplicitTop = 360
       object Label15: TLabel
         Left = 12
         Top = 77
@@ -1513,7 +1511,6 @@ object frmDemo: TfrmDemo
         ParentBackground = False
         ParentFont = False
         TabOrder = 0
-        ExplicitTop = 262
         object btnConectar: TSpeedButton
           AlignWithMargins = True
           Left = 3
@@ -1642,7 +1639,7 @@ object frmDemo: TfrmDemo
     Width = 887
     Height = 711
     Cursor = crHandPoint
-    ActivePage = tsEdicao
+    ActivePage = tsConsulta
     Align = alClient
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
@@ -1653,10 +1650,8 @@ object frmDemo: TfrmDemo
     TabOrder = 1
     TabWidth = 100
     OnChanging = pgcChanging
-    ExplicitHeight = 697
     object tsConsulta: TTabSheet
       Caption = 'Consulta'
-      ExplicitHeight = 665
       object lblTotalRegistro: TLabel
         AlignWithMargins = True
         Left = 3
@@ -1673,7 +1668,6 @@ object frmDemo: TfrmDemo
         Font.Style = [fsBold]
         ParentFont = False
         ExplicitLeft = 788
-        ExplicitTop = 646
         ExplicitWidth = 88
       end
       object Label2: TLabel
@@ -1853,7 +1847,6 @@ object frmDemo: TfrmDemo
     object tsEdicao: TTabSheet
       Caption = 'Cadastro'
       ImageIndex = 1
-      ExplicitHeight = 665
       object GroupBox1: TGroupBox
         AlignWithMargins = True
         Left = 5

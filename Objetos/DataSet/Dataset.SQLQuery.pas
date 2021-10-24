@@ -152,6 +152,14 @@ begin
             FQuery.SQL.Clear;
             FQuery.SQL.Add(ASQL);
 
+            if THelperIni.doLeBoolean('PARAMETROS', 'GRAVAR_LOG_SQL', FALSE) then
+            begin
+               THelperSystem.doGravaLog('logSQL.txt', ASQL);
+
+               if (Assigned(AParametros)) and (AParametros.Count > 0) then
+                   THelperSystem.doGravaLogParametros( 'logSQL.txt', AParametros );
+            end;
+
             if (Assigned(AParametros)) and (AParametros.Count > 0) then
             begin
                 for i := 0 to Pred(AParametros.Count) do
@@ -265,8 +273,13 @@ begin
         if ASQL = EmptyStr then
            ASQL := Self.SQL;
 
-        if THelperIni.doLeBoolean('PARAMETROS', 'GRAVAR_LOG_SQL', FALSE, 'String_Conexao.ini') then
+        if THelperIni.doLeBoolean('PARAMETROS', 'GRAVAR_LOG_SQL', FALSE) then
+        begin
            THelperSystem.doGravaLog('logSQL.txt', ASQL);
+
+           if (Assigned(AParametros)) and (AParametros.Count > 0) then
+               THelperSystem.doGravaLogParametros( 'logSQL.txt', AParametros );
+        end;
 
         if not FConexao.isConectado then
            FConexao.Conectar;
@@ -281,7 +294,11 @@ begin
         if (Assigned(AParametros)) and (AParametros.Count > 0) then
         begin
             for i := 0 to Pred(AParametros.Count) do
-                FQuery.Params[i].Value := AParametros[i].Value;
+            begin
+                FQuery.Params[i].Name     := AParametros[i].Name;
+                FQuery.Params[i].DataType := AParametros[i].DataType;
+                FQuery.Params[i].Value    := AParametros[i].Value;
+            end;
         end;
 
         FQuery.Open;

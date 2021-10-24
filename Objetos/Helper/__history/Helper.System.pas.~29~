@@ -1,16 +1,16 @@
-
 unit Helper.System;
 
 interface
 
 uses
-  Classes, Graphics, IdBaseComponent, IdComponent,
+  Classes, IdBaseComponent, IdComponent,
   IdTCPConnection, IdTCPClient, IdIOHandler, IdIOHandlerSocket,
   IdIOHandlerStack, IdSSL, IdSSLOpenSSL, StdCtrls, FileCtrl, Zlib,
   Generics.Collections, DBClient, DB, DateUtils, System.Threading,
+  Windows, SysUtils, Forms, IniFiles, WinInet,
+  Dialogs, ShellAPI, TlHelp32, Graphics, Vcl.ExtCtrls,
 
-  dxCore, cxDateUtils, System.Variants, System.StrUtils,
-  cxTextEdit, cxMaskEdit, cxDropDownEdit, cxCalendar, System.Types,
+  cxDateUtils, System.Variants, System.StrUtils, System.Types,
   jpeg,
 
   Helper.Constantes;
@@ -56,22 +56,48 @@ type
 
       class function doTruncaValores(const Valor:Double; Decimais:Integer = 2): Double;
       class procedure doSleepNoFreeze(aSegundo: integer);
-      class procedure doGravaLog(aArquivo, aMensagem: string);
       class function KillTask(ExeFileName: string): Integer;
       class procedure doRedimensionaImagem(aLargura, aAltura: integer; aFileImagem: string;
                                           aDiretorioSaida: string = '');
       class procedure doComprimeImagens(ACompression: integer; const AInFile,
                                        AOutFile: string);
-    end;
+      class procedure doLoadImagemDB(var AImage: TImage; ABlobField: TBlobField);
 
-const
-    NOME_INI: string = 'Config.ini';
+      class procedure doGravaLog(aArquivo, aMensagem: string);
+      class procedure doGravaLogParametros(aArquivo: string; aParametros: TParams);
+    end;
 
 implementation
 
-uses
-  Windows, SysUtils, Forms, IniFiles, WinInet,
-  Dialogs, ShellAPI, TlHelp32;
+class procedure THelperSystem.doLoadImagemDB(var AImage: TImage; ABlobField: TBlobField);
+var
+  JpgImg: TJPEGImage;
+  StMem: TMemoryStream;
+begin
+    if ABlobField.DataSet.IsEmpty then
+      Exit;
+
+    try
+        AImage.Picture.Assign(nil);
+        if not (ABlobField.IsNull) and not (ABlobField.AsString = '') then
+        begin
+            jpgImg := TJPEGImage.Create;
+            stMem := TMemoryStream.Create;
+            try
+              ABlobField.SaveToStream(StMem);
+              StMem.Position := 0;
+              JpgImg.LoadFromStream(StMem);
+              AImage.Picture.Assign(JpgImg);
+            finally
+              StMem.Free;
+              JpgImg.Free;
+            end;
+        end;
+    except
+        on E:Exception do
+           raise Exception.Create(e.Message);
+    end;
+end;
 
 class procedure THelperSystem.doComprimeImagens(ACompression: integer; const AInFile,
   AOutFile: string);
@@ -85,16 +111,24 @@ begin
     if iCompression > 100 then iCompression := 100;
 
     oJPG := TJPegImage.Create;
-    oJPG.LoadFromFile(AInFile);
     oBMP := TBitMap.Create;
-    oBMP.Assign(oJPG);
 
-    oJPG.CompressionQuality := iCompression;
-    oJPG.Compress;
-    oJPG.SaveToFile(AOutFile);
+    try
+        try
+            oJPG.LoadFromFile(AInFile);
+            oBMP.Assign(oJPG);
 
-    oJPG.Free;
-    oBMP.Free;
+            oJPG.CompressionQuality := iCompression;
+            oJPG.Compress;
+            oJPG.SaveToFile(AOutFile);
+        except
+            on E:Exception do
+               raise Exception.Create(e.Message);
+        end;
+    finally
+       FreeAndNil( oJPG );
+       FreeAndNil( oBMP );
+    end;
 end;
 
 class procedure THelperSystem.doRedimensionaImagem(aLargura, aAltura: integer; aFileImagem: string; aDiretorioSaida: string = '');
@@ -198,6 +232,42 @@ begin
     except
         on E:Exception do
            raise Exception.Create(e.Message);
+    end;
+end;
+
+class procedure THelperSystem.doGravaLogParametros(aArquivo: string;
+  aParametros: TParams);
+var
+  i: Integer;
+  vValorParametro: string;
+begin
+    for i := 0 to Pred( AParametros.Count ) do
+    begin
+        case AParametros[i].DataType of
+           ftDateTime,
+           ftTimeStamp : vValorParametro := DateToStr( AParametros[i].AsDateTime );
+           ftDate      : vValorParametro := DateToStr( AParametros[i].AsDateTime );
+           ftString,
+           ftWideMemo,
+           ftMemo,
+           ftWideString : vValorParametro := AParametros[i].AsString;
+           ftFloat,
+           ftFMTBcd,
+           ftBCD,
+           ftCurrency,
+           ftExtended   : vValorParametro := FloatToStr( AParametros[i].AsFloat );
+           ftInteger,
+           ftSmallint,
+           ftWord,
+           ftLargeint,
+           ftShortint  : vValorParametro := IntToStr( AParametros[i].AsInteger );
+           ftBoolean   : vValorParametro := BoolToStr( AParametros[i].AsBoolean, true );
+           ftBlob      : vValorParametro := 'Campo Blob';
+        else
+           vValorParametro := VarToStrDef( AParametros[i].Value, 'Vazio' );
+        end;
+
+        THelperSystem.doGravaLog( 'logSQL.txt', 'PARAM ['+AParametros[i].Name+'] -> ' + vValorParametro );
     end;
 end;
 

@@ -84,10 +84,8 @@ type
     Panel8: TPanel;
     SpeedButton1: TSpeedButton;
     btnBanco: TButton;
-    OpenFileBanco: TOpenTextFileDialog;
     Label21: TLabel;
     cmbEngine: TComboBox;
-    OpenFileFoto: TOpenTextFileDialog;
     Panel9: TPanel;
     btnAddImagem: TSpeedButton;
     Panel10: TPanel;
@@ -160,9 +158,17 @@ begin
 end;
 
 procedure TfrmDemo.btnBancoClick(Sender: TObject);
+var
+  vOpenFileBanco : TOpenTextFileDialog;
 begin
-   if ( OpenFileBanco.Execute ) then
-      edtNomeBanco.Text := OpenFileBanco.FileName;
+   vOpenFileBanco := TOpenTextFileDialog.Create(nil);
+
+   try
+      if ( vOpenFileBanco.Execute ) then
+         edtNomeBanco.Text := vOpenFileBanco.FileName;
+   finally
+     FreeAndNil( vOpenFileBanco );
+   end;
 end;
 
 procedure TfrmDemo.btnCancelarClick(Sender: TObject);
@@ -177,10 +183,24 @@ begin
 end;
 
 procedure TfrmDemo.btnRemoveImagemClick(Sender: TObject);
+var
+  vImagem: TMemoryStream;
 begin
+    if ( cds.FieldByName('foto').IsNull ) then
+       Exit;
+
     if ( MessageDlg('Deseja remover essa Foto ?', mtConfirmation, [mbYes, mbNo], 0) = mrYes ) then
     begin
-        cds.FieldByName('foto').AsVariant := null;
+        vImagem := TMemoryStream.Create;
+        try
+           (cds.FieldByName('foto') as TBlobField).LoadFromStream( vImagem );
+
+           // IMPLEMENTAÇÃO NECESSÁRIA PARA SETAR O CAMPO BLOB COMO MODIFICADO
+           cds.FieldByName('foto').Tag := 1;
+        finally
+           FreeAndNil( vImagem );
+        end;
+
         imgFoto.Picture := nil;
     end;
 end;
@@ -374,44 +394,51 @@ procedure TfrmDemo.btnAddImagemClick(Sender: TObject);
 var
    vNomeFile: string;
    vImagem : TMemoryStream ;
+   vOpenFileFoto : TOpenTextFileDialog;
 begin
-    OpenFileFoto.Title      := 'Selecione uma Foto JPEG';
-    OpenFileFoto.DefaultExt := '*.jpg';
-    OpenFileFoto.Filter     := 'Arquivos Todos os Arquivos (*.*)|*.*|(*.jpg)|*.jpeg';
+    vOpenFileFoto := TOpenTextFileDialog.Create(nil);
 
-    if OpenFileFoto.Execute then
-    begin
-        vNomeFile := ExtractFileName( OpenFileFoto.FileName );
+    try
+        vOpenFileFoto.Title      := 'Selecione uma Foto JPEG';
+        vOpenFileFoto.DefaultExt := '*.jpg';
+        vOpenFileFoto.Filter     := 'Arquivos Todos os Arquivos (*.*)|*.*|(*.jpg)|*.jpeg';
 
-        try
-            THelperSystem.doRedimensionaImagem( 200, 150, OpenFileFoto.FileName );
-            THelperSystem.doComprimeImagens( 30, 'compac_' + vNomeFile, 'temp_' + vNomeFile );
-            imgFoto.Picture.LoadFromFile('temp_' + vNomeFile);
+        if vOpenFileFoto.Execute then
+        begin
+            vNomeFile := ExtractFileName( vOpenFileFoto.FileName );
 
-            vImagem := TMemoryStream.Create;
             try
-               imgFoto.Picture.Graphic.SaveToStream( vImagem );
-               (cds.FieldByName('foto') as TBlobField).LoadFromStream( vImagem );
+                THelperSystem.doRedimensionaImagem( 250, 220, vOpenFileFoto.FileName );
+                THelperSystem.doComprimeImagens( 30, 'compac_' + vNomeFile, 'temp_' + vNomeFile );
+                imgFoto.Picture.LoadFromFile('temp_' + vNomeFile);
 
-               // IMPLEMENTAÇÃO NECESSÁRIA PARA SETAR O CAMPO BLOB COMO MODIFICADO
-               cds.FieldByName('foto').Tag := 1;
-            finally
-                FreeAndNil( vImagem );
-            end;
+                vImagem := TMemoryStream.Create;
+                try
+                   imgFoto.Picture.Graphic.SaveToStream( vImagem );
+                   (cds.FieldByName('foto') as TBlobField).LoadFromStream( vImagem );
 
-            DeleteFile('temp_' + vNomeFile);
-            DeleteFile('compac_' + vNomeFile);
-        except
-            on E:Exception do
-            begin
-                if Pos('UNKNOWN PICTURE FILE', UpperCase( E.Message )) > 0 then
-                   MessageDlg( 'Extensão da imagem desconhecida !', mtError, [mbOK], 0 )
-                else if Pos('JPEG ERROR', UpperCase( E.Message )) > 0 then
-                   MessageDlg( 'Extensão da imagem inválida !', mtError, [mbOK], 0 )
-                else
-                   MessageDlg( e.Message, mtError, [mbOK], 0 )
+                   // IMPLEMENTAÇÃO NECESSÁRIA PARA SETAR O CAMPO BLOB COMO MODIFICADO
+                   cds.FieldByName('foto').Tag := 1;
+                finally
+                    FreeAndNil( vImagem );
+                end;
+
+                DeleteFile('temp_' + vNomeFile);
+                DeleteFile('compac_' + vNomeFile);
+            except
+                on E:Exception do
+                begin
+                    if Pos('UNKNOWN PICTURE FILE', UpperCase( E.Message )) > 0 then
+                       MessageDlg( 'Extensão da imagem desconhecida !', mtError, [mbOK], 0 )
+                    else if Pos('JPEG ERROR', UpperCase( E.Message )) > 0 then
+                       MessageDlg( 'Extensão da imagem dever ser JPG ou JPEG !', mtError, [mbOK], 0 )
+                    else
+                       MessageDlg( e.Message, mtError, [mbOK], 0 )
+                end;
             end;
         end;
+    finally
+        FreeAndNil( vOpenFileFoto );
     end;
 end;
 

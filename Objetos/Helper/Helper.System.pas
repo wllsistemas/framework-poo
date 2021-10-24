@@ -56,13 +56,15 @@ type
 
       class function doTruncaValores(const Valor:Double; Decimais:Integer = 2): Double;
       class procedure doSleepNoFreeze(aSegundo: integer);
-      class procedure doGravaLog(aArquivo, aMensagem: string);
       class function KillTask(ExeFileName: string): Integer;
       class procedure doRedimensionaImagem(aLargura, aAltura: integer; aFileImagem: string;
                                           aDiretorioSaida: string = '');
       class procedure doComprimeImagens(ACompression: integer; const AInFile,
                                        AOutFile: string);
       class procedure doLoadImagemDB(var AImage: TImage; ABlobField: TBlobField);
+
+      class procedure doGravaLog(aArquivo, aMensagem: string);
+      class procedure doGravaLogParametros(aArquivo: string; aParametros: TParams);
     end;
 
 implementation
@@ -230,6 +232,42 @@ begin
     except
         on E:Exception do
            raise Exception.Create(e.Message);
+    end;
+end;
+
+class procedure THelperSystem.doGravaLogParametros(aArquivo: string;
+  aParametros: TParams);
+var
+  i: Integer;
+  vValorParametro: string;
+begin
+    for i := 0 to Pred( AParametros.Count ) do
+    begin
+        case AParametros[i].DataType of
+           ftDateTime,
+           ftTimeStamp : vValorParametro := DateToStr( AParametros[i].AsDateTime );
+           ftDate      : vValorParametro := DateToStr( AParametros[i].AsDateTime );
+           ftString,
+           ftWideMemo,
+           ftMemo,
+           ftWideString : vValorParametro := AParametros[i].AsString;
+           ftFloat,
+           ftFMTBcd,
+           ftBCD,
+           ftCurrency,
+           ftExtended   : vValorParametro := FloatToStr( AParametros[i].AsFloat );
+           ftInteger,
+           ftSmallint,
+           ftWord,
+           ftLargeint,
+           ftShortint  : vValorParametro := IntToStr( AParametros[i].AsInteger );
+           ftBoolean   : vValorParametro := BoolToStr( AParametros[i].AsBoolean, true );
+           ftBlob      : vValorParametro := 'Campo Blob';
+        else
+           vValorParametro := VarToStrDef( AParametros[i].Value, 'Vazio' );
+        end;
+
+        THelperSystem.doGravaLog( 'logSQL.txt', 'PARAM ['+AParametros[i].Name+'] -> ' + vValorParametro );
     end;
 end;
 

@@ -192,7 +192,13 @@ begin
             if (Assigned(AParametros)) and (AParametros.Count > 0) then
             begin
                 for i := 0 to Pred(AParametros.Count) do
+                begin
+                    FQuery.Params[i].Name     := AParametros[i].Name;
+                    FQuery.Params[i].DataType := AParametros[i].DataType;
                     FQuery.Params[i].Value    := AParametros[i].Value;
+                end;
+
+                THelperSystem.doGravaLogParametros( 'logSQL.txt', AParametros );
             end;
 
             FQuery.ExecSQL;
@@ -311,7 +317,13 @@ begin
         if (Assigned(AParametros)) and (AParametros.Count > 0) then
         begin
             for i := 0 to Pred(AParametros.Count) do
-                FQuery.Params[i].Value := AParametros[i].Value;
+            begin
+                FQuery.Params[i].Name     := AParametros[i].Name;
+                FQuery.Params[i].DataType := AParametros[i].DataType;
+                FQuery.Params[i].Value    := AParametros[i].Value;
+            end;
+
+            THelperSystem.doGravaLogParametros( 'logSQL.txt', AParametros );
         end;
 
         FQuery.Open;
@@ -324,16 +336,7 @@ begin
        on E:Exception do
        begin
           FSQL.Clear;
-          if ( Pos('COMPLETE NETWORK REQUEST', UpperCase(e.Message)) > 0 ) then
-          begin
-             raise Exception.Create('ERRO DE CONEXÃO !' + sLineBreak +
-                                    'DETECTAMOS QUE SEU COMPUTADOR PERDEU CONEXÃO VIA REDE COM O SERVIDOR.            ' + sLineBreak + sLineBreak +
-                                    'AÇÕES DISPONÍVEIS:                                                               ' + sLineBreak +
-                                    '- REDE CABEADA, VERIFIQUE SE O CABO DE REDE ESTÁ CONECTA AO COMPUTADOR           ' + sLineBreak +
-                                    '- REDE WIFI, PODE OCORRER PROBLEMAS COM A SUA ANTENA, ROTEADOR OU O SINAL WIFI SOFRER INTERFERÊNCIA');
-          end
-          else
-            raise Exception.Create('Erro [EXECUTAR CONSULTA]: ' + E.Message);
+          raise Exception.Create('Erro [EXECUTAR CONSULTA]: ' + E.Message);
        end;
     end;
 end;
@@ -341,59 +344,22 @@ end;
 function TDatasetFDQuery.OpenSQLToCDS(ASQL: string;
   AParametros: TParams): TClientDataSet;
 var
-   i: Integer;
    vCDS: TClientDataSet;
 begin
     try
         Result := nil;
 
+        vCDS := TClientDataSet.Create(nil);
+
         if ASQL = EmptyStr then
            ASQL := Self.SQL;
 
-        vCDS := TClientDataSet.Create(nil);
-
-        if THelperIni.doLeBoolean('PARAMETROS', 'GRAVAR_LOG_SQL', FALSE) then
-           THelperSystem.doGravaLog('logSQL.txt', ASQL);
-
-        if not FConexao.isConectado then
-           FConexao.Conectar;
-
-        FQuery.Fields.Clear;
-        FQuery.FieldDefs.Clear;
-        FQuery.Params.Clear;
-        FQuery.Close;
-        FQuery.SQL.Clear;
-        FQuery.SQL.Add(ASQL);
-
-        if (Assigned(AParametros)) and (AParametros.Count > 0) then
-        begin
-            for i := 0 to Pred(AParametros.Count) do
-                FQuery.Params[i].Value := AParametros[i].Value;
-        end;
-
-        FQuery.Open;
-
-        if Assigned(vCDS) then
-           THelperDataSet.doCopyDataToClientDataSet( FQuery, vCDS );
-
-        FSQL.Clear;
+        Self.OpenSQL( ASQL, AParametros, vCDS );
 
         Result := vCDS;
     except
        on E:Exception do
-       begin
-          FSQL.Clear;
-          if ( Pos('COMPLETE NETWORK REQUEST', UpperCase(e.Message)) > 0 ) then
-          begin
-             raise Exception.Create('ERRO DE CONEXÃO !' + sLineBreak +
-                                    'DETECTAMOS QUE SEU COMPUTADOR PERDEU CONEXÃO VIA REDE COM O SERVIDOR.            ' + sLineBreak + sLineBreak +
-                                    'AÇÕES DISPONÍVEIS:                                                               ' + sLineBreak +
-                                    '- REDE CABEADA, VERIFIQUE SE O CABO DE REDE ESTÁ CONECTA AO COMPUTADOR           ' + sLineBreak +
-                                    '- REDE WIFI, PODE OCORRER PROBLEMAS COM A SUA ANTENA, ROTEADOR OU O SINAL WIFI SOFRER INTERFERÊNCIA');
-          end
-          else
-            raise Exception.Create('Erro [EXECUTAR CONSULTA]: ' + E.Message);
-       end;
+          raise Exception.Create('Erro [RETORNAR CLIENTDATASET]: ' + E.Message);
     end;
 end;
 

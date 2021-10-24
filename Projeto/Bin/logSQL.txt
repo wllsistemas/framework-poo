@@ -1,6 +1,89 @@
-18/10/2021 - 08:41:55 - SELECT * FROM cliente 
-18/10/2021 - 08:42:57 - SELECT * FROM cliente 
-18/10/2021 - 08:43:27 - SELECT * FROM cliente 
-18/10/2021 - 08:43:38 - SELECT * FROM cliente 
-18/10/2021 - 08:43:49 - UPDATE cliente SET status = :status WHERE id = :id 
-18/10/2021 - 08:43:49 - SELECT * FROM cliente 
+24/10/2021 - 09:59:29 - SELECT * FROM cliente 
+24/10/2021 - 09:59:33 - UPDATE cliente SET status = :status WHERE id = :id 
+24/10/2021 - 10:06:54 - SELECT * FROM cliente 
+24/10/2021 - 10:06:58 - UPDATE cliente SET status = :status WHERE id = :id 
+24/10/2021 - 10:06:58 - PARAM [status] -> 0
+24/10/2021 - 10:06:58 - PARAM [id] -> 1
+24/10/2021 - 10:06:58 - SELECT * FROM cliente 
+24/10/2021 - 10:07:28 - UPDATE cliente SET data_nascimento = :data_nascimento, cpf = :cpf WHERE id = :id 
+24/10/2021 - 10:07:28 - PARAM [data_nascimento] -> 11/11/1111
+24/10/2021 - 10:07:28 - PARAM [cpf] -> 222.222.222.22
+24/10/2021 - 10:07:28 - PARAM [id] -> 7
+24/10/2021 - 10:07:28 - SELECT * FROM cliente 
+24/10/2021 - 10:09:27 - SELECT * FROM cliente 
+24/10/2021 - 10:09:32 - UPDATE cliente SET foto = :foto WHERE id = :id 
+24/10/2021 - 10:09:32 - PARAM [foto] -> 
+24/10/2021 - 10:09:32 - PARAM [id] -> 8
+24/10/2021 - 10:09:32 - SELECT * FROM cliente 
+24/10/2021 - 10:10:16 - UPDATE cliente SET foto = :foto WHERE id = :id 
+24/10/2021 - 10:11:26 - SELECT * FROM cliente 
+24/10/2021 - 10:11:32 - UPDATE cliente SET foto = :foto WHERE id = :id 
+24/10/2021 - 10:11:32 - PARAM [foto] -> Valor Blob não pode ser convertido
+24/10/2021 - 10:11:32 - PARAM [id] -> 8
+24/10/2021 - 10:11:32 - SELECT * FROM cliente 
+24/10/2021 - 10:13:45 - SELECT * FROM cliente 
+24/10/2021 - 10:13:50 - UPDATE cliente SET foto = :foto WHERE id = :id 
+24/10/2021 - 10:13:50 - PARAM [foto] -> 
+24/10/2021 - 10:13:50 - PARAM [id] -> 8
+24/10/2021 - 10:13:50 - SELECT * FROM cliente 
+24/10/2021 - 10:14:31 - SELECT * FROM cliente  WHERE id <> 666
+24/10/2021 - 10:14:47 - SELECT * FROM cliente  WHERE id LIKE '%666%'
+24/10/2021 - 10:14:56 - SELECT * FROM cliente  WHERE id = 666
+24/10/2021 - 10:15:24 - INSERT INTO cliente(nome, data_nascimento, rua, foto, status, cpf)VALUES(:nome, :data_nascimento, :rua, :foto, :status, :cpf)
+24/10/2021 - 10:15:24 - PARAM [nome] -> william
+24/10/2021 - 10:15:24 - PARAM [data_nascimento] -> 11/11/1111
+24/10/2021 - 10:15:24 - PARAM [rua] -> tete
+24/10/2021 - 10:15:24 - PARAM [foto] -> Campo Blob
+24/10/2021 - 10:15:24 - PARAM [status] -> -1
+24/10/2021 - 10:15:24 - PARAM [cpf] -> 111.111.111.11
+24/10/2021 - 10:15:24 - SELECT * FROM cliente  WHERE id = 666
+24/10/2021 - 10:15:51 - SELECT * FROM cliente 
+24/10/2021 - 10:16:05 - SELECT * FROM cliente 
+24/10/2021 - 10:16:12 - UPDATE cliente SET status = :status WHERE id = :id 
+24/10/2021 - 10:16:12 - PARAM [status] -> 0
+24/10/2021 - 10:16:12 - PARAM [id] -> 16
+24/10/2021 - 10:16:12 - SELECT * FROM cliente 
+24/10/2021 - 10:16:20 - UPDATE cliente SET status = :status WHERE id = :id 
+24/10/2021 - 10:16:20 - PARAM [status] -> -1
+24/10/2021 - 10:16:20 - PARAM [id] -> 16
+24/10/2021 - 10:16:20 - SELECT * FROM cliente 
+24/10/2021 - 10:18:01 - SELECT * FROM cliente 
+24/10/2021 - 10:18:05 - UPDATE cliente SET status = :status WHERE id = :id 
+24/10/2021 - 10:18:05 - PARAM [status] -> False
+24/10/2021 - 10:18:05 - PARAM [id] -> 16
+24/10/2021 - 10:18:05 - SELECT * FROM cliente 
+24/10/2021 - 10:18:07 - UPDATE cliente SET status = :status WHERE id = :id 
+24/10/2021 - 10:18:07 - PARAM [status] -> True
+24/10/2021 - 10:18:07 - PARAM [id] -> 16
+24/10/2021 - 10:18:07 - SELECT * FROM cliente 
+24/10/2021 - 10:18:47 - INSERT INTO cliente(nome)VALUES(:nome)
+24/10/2021 - 10:18:47 - PARAM [nome] -> dvzxzxzx
+24/10/2021 - 10:18:47 - SELECT * FROM cliente 
+24/10/2021 - 10:20:22 - DELETE FROM cliente WHERE id = 17
+24/10/2021 - 10:20:40 - UPDATE cliente SET foto = :foto WHERE id = :id 
+24/10/2021 - 10:20:40 - PARAM [foto] -> 
+24/10/2021 - 10:20:40 - PARAM [id] -> 13
+24/10/2021 - 10:20:40 - SELECT * FROM cliente 
+24/10/2021 - 10:25:27 - SELECT * FROM cliente 
+24/10/2021 - 10:25:31 - UPDATE cliente SET STATUS = :STATUS WHERE ID = :ID 
+24/10/2021 - 10:25:31 - PARAM [STATUS] -> 1
+24/10/2021 - 10:25:31 - PARAM [ID] -> 7
+24/10/2021 - 10:25:31 - SELECT * FROM cliente 
+24/10/2021 - 10:26:06 - INSERT INTO cliente(NOME, NUMERO, FOTO, STATUS)VALUES(:NOME, :NUMERO, :FOTO, :STATUS)
+24/10/2021 - 10:26:06 - PARAM [NOME] -> teste
+24/10/2021 - 10:26:06 - PARAM [NUMERO] -> 333
+24/10/2021 - 10:26:06 - PARAM [FOTO] -> Campo Blob
+24/10/2021 - 10:26:06 - PARAM [STATUS] -> 1
+24/10/2021 - 10:26:06 - SELECT * FROM cliente 
+24/10/2021 - 10:27:52 - SELECT * FROM cliente 
+24/10/2021 - 10:28:26 - SELECT * FROM cliente 
+24/10/2021 - 10:28:31 - UPDATE cliente SET FOTO = :FOTO, STATUS = :STATUS WHERE ID = :ID 
+24/10/2021 - 10:28:31 - PARAM [FOTO] -> 
+24/10/2021 - 10:28:31 - PARAM [STATUS] -> 0
+24/10/2021 - 10:28:31 - PARAM [ID] -> 8
+24/10/2021 - 10:28:31 - SELECT * FROM cliente 
+24/10/2021 - 10:29:46 - SELECT * FROM cliente 
+24/10/2021 - 10:29:50 - UPDATE cliente SET FOTO = :FOTO WHERE ID = :ID 
+24/10/2021 - 10:29:50 - PARAM [FOTO] -> Vazio
+24/10/2021 - 10:29:50 - PARAM [ID] -> 7
+24/10/2021 - 10:29:50 - SELECT * FROM cliente 

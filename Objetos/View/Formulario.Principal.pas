@@ -162,6 +162,7 @@ var
   vOpenFileBanco : TOpenTextFileDialog;
 begin
    vOpenFileBanco := TOpenTextFileDialog.Create(nil);
+   vOpenFileBanco.InitialDir := GetCurrentDir();
 
    try
       if ( vOpenFileBanco.Execute ) then

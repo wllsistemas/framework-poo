@@ -1,4 +1,4 @@
-unit Dataset.UniQuery;
+unit Dataset.FDQuery;
 
 interface
 
@@ -15,12 +15,15 @@ uses
    Vcl.Forms,
    Datasnap.DBClient,
    Datasnap.Provider,
-   Data.DB, MemDS, DBAccess, Uni;
+   FireDAC.Stan.Intf, FireDAC.Stan.Option, FireDAC.Stan.Param,
+   FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf,
+   FireDAC.Stan.Async, FireDAC.DApt, Data.DB, FireDAC.Comp.DataSet,
+   FireDAC.Comp.Client;
 
 type
-   TDatasetUniQuery = class(TInterfacedObject, iDataset)
+   TDatasetFDQuery = class(TInterfacedObject, iDataset)
     private
-      FQuery: TUniQuery;
+      FQuery: TFDQuery;
       FConexao: iConexao;
       FSQL: TStringBuilder;
     public
@@ -61,10 +64,10 @@ type
 
 implementation
 
-{ TDatasetUniQuery }
+{ TDatasetFDQuery }
 
 
-function TDatasetUniQuery.Concatenar(AValores: array of string;
+function TDatasetFDQuery.Concatenar(AValores: array of string;
   AApelido: string): iDataset;
 var
   i: integer;
@@ -96,21 +99,21 @@ begin
 end;
 
 
-constructor TDatasetUniQuery.Create(AConexao: iConexao);
+constructor TDatasetFDQuery.Create(AConexao: iConexao);
 begin
-   FQuery := TUniQuery.Create(nil);
-   FQuery.Connection := AConexao.RetornaConexao as TUniConnection;
+   FQuery := TFDQuery.Create(nil);
+   FQuery.Connection := AConexao.RetornaConexao as TFDConnection;
    FConexao := AConexao;
    FSQL := TStringBuilder.Create;
 end;
 
-function TDatasetUniQuery.Dataset: TDataSet;
+function TDatasetFDQuery.Dataset: TDataSet;
 begin
     Result := TDataSet(FQuery);
 end;
 
 
-destructor TDatasetUniQuery.Destroy;
+destructor TDatasetFDQuery.Destroy;
 begin
   Freeandnil(FQuery);
   FreeAndNil(FSQL);
@@ -118,7 +121,7 @@ begin
 end;
 
 
-function TDatasetUniQuery.ExecSelectCampoInteger(AParametros: TParams;
+function TDatasetFDQuery.ExecSelectCampoInteger(AParametros: TParams;
   ASQL: string): Integer;
 var
   vCDS: TClientDataSet;
@@ -129,7 +132,7 @@ begin
     Result := vCDS.Fields[0].AsInteger;
 end;
 
-function TDatasetUniQuery.ExecSelectCampoDate(AParametros: TParams;
+function TDatasetFDQuery.ExecSelectCampoDate(AParametros: TParams;
   ASQL: string): TDateTime;
 var
   vCDS: TClientDataSet;
@@ -140,7 +143,7 @@ begin
     Result := vCDS.Fields[0].AsDateTime;
 end;
 
-function TDatasetUniQuery.ExecSelectCampoString(AParametros: TParams;
+function TDatasetFDQuery.ExecSelectCampoString(AParametros: TParams;
   ASQL: string): string;
 var
   vCDS: TClientDataSet;
@@ -151,7 +154,7 @@ begin
     Result := vCDS.Fields[0].AsString;
 end;
 
-function TDatasetUniQuery.ExecSelectCampoDouble(AParametros: TParams;
+function TDatasetFDQuery.ExecSelectCampoDouble(AParametros: TParams;
   ASQL: string): Double;
 var
   vCDS: TClientDataSet;
@@ -162,7 +165,7 @@ begin
     Result := vCDS.Fields[0].AsFloat;
 end;
 
-function TDatasetUniQuery.ExecSQL(ASQL: string; AParametros: TParams): iDataset;
+function TDatasetFDQuery.ExecSQL(ASQL: string; AParametros: TParams): iDataset;
 var
    i: Integer;
 begin
@@ -184,12 +187,7 @@ begin
             FQuery.SQL.Add(ASQL);
 
             if THelperIni.doLeBoolean('PARAMETROS', 'GRAVAR_LOG_SQL', FALSE) then
-            begin
                THelperSystem.doGravaLog('logSQL.txt', ASQL);
-
-               if (Assigned(AParametros)) and (AParametros.Count > 0) then
-                   THelperSystem.doGravaLogParametros( 'logSQL.txt', AParametros );
-            end;
 
             if (Assigned(AParametros)) and (AParametros.Count > 0) then
             begin
@@ -208,45 +206,42 @@ begin
         end;
     except
        on E:Exception do
-       begin
-          FSQL.Clear;
           raise Exception.Create('Erro [EXECUTAR SQL]: ' + E.Message);
-       end;
     end;
 end;
 
 
-function TDatasetUniQuery.From(ASQL: string): iDataSet;
+function TDatasetFDQuery.From(ASQL: string): iDataSet;
 begin
     Result := Self;
     FSQL.AppendLine('FROM ' + ASQL);
 end;
 
-function TDatasetUniQuery.Group(ASQL: string): iDataSet;
+function TDatasetFDQuery.Group(ASQL: string): iDataSet;
 begin
     Result := Self;
     FSQL.AppendLine('GROUP BY ' + ASQL);
 end;
 
-function TDatasetUniQuery.Having(ASQL: string): iDataSet;
+function TDatasetFDQuery.Having(ASQL: string): iDataSet;
 begin
     Result := Self;
     FSQL.AppendLine('HAVING ' + ASQL);
 end;
 
-function TDatasetUniQuery.Join(ATabela, ACampoLeft, ACampoRight: string): iDataSet;
+function TDatasetFDQuery.Join(ATabela, ACampoLeft, ACampoRight: string): iDataSet;
 begin
     Result := Self;
     FSQL.AppendLine('INNER JOIN  ' + ATabela + ' ON ' + ACampoLeft + ' = ' + ACampoRight);
 end;
 
-function TDatasetUniQuery.LeftJoin(ATabela, ACampoLeft, ACampoRight: string): iDataSet;
+function TDatasetFDQuery.LeftJoin(ATabela, ACampoLeft, ACampoRight: string): iDataSet;
 begin
     Result := Self;
     FSQL.AppendLine('LEFT JOIN  ' + ATabela + ' ON ' + ACampoLeft + ' = ' + ACampoRight);
 end;
 
-function TDatasetUniQuery.Limit(ALimite: integer): iDataSet;
+function TDatasetFDQuery.Limit(ALimite: integer): iDataSet;
 begin
     Result := Self;
 
@@ -259,41 +254,41 @@ begin
     end;
 end;
 
-class function TDatasetUniQuery.New(AConexao: iConexao): iDataset;
+class function TDatasetFDQuery.New(AConexao: iConexao): iDataset;
 begin
     Result := Self.Create(AConexao);
 end;
 
-function TDatasetUniQuery.Open(AParametros: TParams; ACDS: TClientDataSet): iDataset;
+function TDatasetFDQuery.Open(AParametros: TParams; ACDS: TClientDataSet): iDataset;
 begin
     Self.OpenSQL(FSQL.ToString, AParametros, ACDS);
     Result := Self;
 end;
 
-function TDatasetUniQuery.Select(ASQL: string): iDataSet;
+function TDatasetFDQuery.Select(ASQL: string): iDataSet;
 begin
     Result := Self;
     FSQL.AppendLine('SELECT  ' + ASQL);
 end;
 
-function TDatasetUniQuery.SelectAdd(ASQL: string): iDataSet;
+function TDatasetFDQuery.SelectAdd(ASQL: string): iDataSet;
 begin
     Result := Self;
     FSQL.AppendLine(ASQL);
 end;
 
-function TDatasetUniQuery.SQL: string;
+function TDatasetFDQuery.SQL: string;
 begin
     Result := FSQL.ToString;
 end;
 
-function TDatasetUniQuery.UnionAll(): iDataSet;
+function TDatasetFDQuery.UnionAll(): iDataSet;
 begin
     Result := Self;
     FSQL.AppendLine('UNION ALL');
 end;
 
-function TDatasetUniQuery.OpenSQL(ASQL: string; AParametros: TParams;
+function TDatasetFDQuery.OpenSQL(ASQL: string; AParametros: TParams;
   ACDS: TClientDataSet): iDataset;
 var
    i: Integer;
@@ -305,12 +300,7 @@ begin
            ASQL := Self.SQL;
 
         if THelperIni.doLeBoolean('PARAMETROS', 'GRAVAR_LOG_SQL', FALSE) then
-        begin
            THelperSystem.doGravaLog('logSQL.txt', ASQL);
-
-           if (Assigned(AParametros)) and (AParametros.Count > 0) then
-               THelperSystem.doGravaLogParametros( 'logSQL.txt', AParametros );
-        end;
 
         if not FConexao.isConectado then
            FConexao.Conectar;
@@ -334,7 +324,7 @@ begin
 
         FQuery.Open;
 
-        if Assigned( ACDS ) then
+        if Assigned(ACDS) then
            THelperDataSet.doCopyDataToClientDataSet( FQuery, ACDS );
 
         FSQL.Clear;
@@ -342,21 +332,12 @@ begin
        on E:Exception do
        begin
           FSQL.Clear;
-          if ( Pos('COMPLETE NETWORK REQUEST', UpperCase(e.Message)) > 0 ) then
-          begin
-             raise Exception.Create('ERRO DE CONEXÃO !' + sLineBreak +
-                                    'DETECTAMOS QUE SEU COMPUTADOR PERDEU CONEXÃO VIA REDE COM O SERVIDOR.            ' + sLineBreak + sLineBreak +
-                                    'AÇÕES DISPONÍVEIS:                                                               ' + sLineBreak +
-                                    '- REDE CABEADA, VERIFIQUE SE O CABO DE REDE ESTÁ CONECTA AO COMPUTADOR           ' + sLineBreak +
-                                    '- REDE WIFI, PODE OCORRER PROBLEMAS COM A SUA ANTENA, ROTEADOR OU O SINAL WIFI SOFRER INTERFERÊNCIA');
-          end
-          else
-            raise Exception.Create('Erro [EXECUTAR CONSULTA]: ' + E.Message);
+          raise Exception.Create('Erro [EXECUTAR CONSULTA]: ' + E.Message);
        end;
     end;
 end;
 
-function TDatasetUniQuery.OpenSQLToCDS(ASQL: string;
+function TDatasetFDQuery.OpenSQLToCDS(ASQL: string;
   AParametros: TParams): TClientDataSet;
 var
    vCDS: TClientDataSet;
@@ -378,19 +359,19 @@ begin
     end;
 end;
 
-function TDatasetUniQuery.OrderAsc(ASQL: string): iDataSet;
+function TDatasetFDQuery.OrderAsc(ASQL: string): iDataSet;
 begin
     Result := Self;
     FSQL.AppendLine('ORDER BY  ' + ASQL + ' ASC');
 end;
 
-function TDatasetUniQuery.OrderDesc(ASQL: string): iDataSet;
+function TDatasetFDQuery.OrderDesc(ASQL: string): iDataSet;
 begin
     Result := Self;
     FSQL.AppendLine('ORDER BY  ' + ASQL + ' DESC');
 end;
 
-function TDatasetUniQuery.RecordCount(AParametros: TParams; ASQL: string = ''): Integer;
+function TDatasetFDQuery.RecordCount(AParametros: TParams; ASQL: string = ''): Integer;
 var
   vCDS: TClientDataSet;
 begin
@@ -400,13 +381,13 @@ begin
     Result := vCDS.RecordCount;
 end;
 
-function TDatasetUniQuery.RightJoin(ATabela, ACampoLeft, ACampoRight: string): iDataSet;
+function TDatasetFDQuery.RightJoin(ATabela, ACampoLeft, ACampoRight: string): iDataSet;
 begin
     Result := Self;
     FSQL.AppendLine('RIGHT JOIN  ' + ATabela + ' ON ' + ACampoLeft + ' = ' + ACampoRight);
 end;
 
-function TDatasetUniQuery.OpenCDS_Array(ASQL: TStringList;
+function TDatasetFDQuery.OpenCDS_Array(ASQL: TStringList;
   ACDS: array of TClientDataSet): iDataset;
 var
    i: Integer;
@@ -417,17 +398,17 @@ begin
         OpenSQL(ASQL[I], nil, ACDS[I]);
 end;
 
-function TDatasetUniQuery.Where(ASQL: string = ''): iDataSet;
+function TDatasetFDQuery.Where(ASQL: string = ''): iDataSet;
 begin
     Result := Self;
     FSQL.AppendLine('WHERE ' + ASQL)
 end;
 
-function TDatasetUniQuery.WhereAdd(ASQL: string): iDataSet;
+function TDatasetFDQuery.WhereAdd(ASQL: string): iDataSet;
 begin
     Result := Self;
     FSQL.AppendLine(ASQL);
 end;
 
-end.
 
+end.
